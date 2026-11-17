@@ -1,0 +1,30 @@
+
+
+[
+  {
+    "id": "001",
+    "pmcid": "PMC11937334",
+    "title": "Baseline clinical and biochemical profiles of type 2 diabetes patients enrolled in a lifestyle management program in India, a cross-sectional study",
+    "year": 2025,
+    "journal": "Scientific Reports",
+    "study_type": "Cross-sectional study",
+    "population": "Adults aged 18-70 with type 2 diabetes participating in a lifestyle management program in India",
+    "sample_size": 18950,
+    "country": "India",
+    "outcome": "70.0% had poor glycemic control (HbA1c >= 7%); obesity prevalence was 57.2%",
+    "licence": "CC BY 4.0"
+  },
+  {
+    "id": "002",
+    "pmcid": "PMC6673766",
+    "title": "Real-world evidence of glycemic control among patients with type 2 diabetes mellitus in India: the TIGHT study",
+    "year": 2019,
+    "journal": "BMJ Open Diabetes Research & Care",
+    "study_type": "Retrospective analysis of cross-sectional data",
+    "population": "Patients with type 2 diabetes receiving oral hypoglycemic agents with or without insulin in India",
+    "sample_size": 55639,
+    "country": "India",
+    "outcome": "76.6% of patients had uncontrolled diabetes (HbA1c >= 7%)",
+    "licence": "CC BY-NC 4.0"
+  }
+]
