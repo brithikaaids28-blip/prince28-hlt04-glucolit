@@ -14,29 +14,23 @@ from glucolit.api.errors import (
 from glucolit.api.middleware import RequestMiddleware
 from glucolit.api.routes import documents, health
 from glucolit.config import Settings, get_settings
+from glucolit.db.session import engine
 from glucolit.logging_setup import setup_logging
-from glucolit.store import DocumentStore
 
 logger = logging.getLogger(__name__)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
+    """Create and configure the FastAPI application."""
     settings = settings or get_settings()
     setup_logging(settings.log_level)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        store = DocumentStore(settings.data_file)
-        app.state.store = store
-        app.state.records_loaded = False
-
-        try:
-            store.load()
-            app.state.records_loaded = True
-        except FileNotFoundError:
-            logger.warning("data file not found")
-
+        logger.info("Starting GlucoLit API with PostgreSQL")
         yield
+        await engine.dispose()
+        logger.info("Database engine disposed")
 
     app = FastAPI(
         title=settings.app_name,

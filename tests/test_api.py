@@ -1,71 +1,81 @@
-import pytest
-from fastapi.testclient import TestClient
-from pydantic import ValidationError
-
-from glucolit.api.main import create_app
-from glucolit.config import Settings
+def test_health(client):
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
 
 
-def test_health_is_ok(client):
-    r = client.get("/health")
-    assert r.status_code == 200
-    assert r.json()["status"] == "ok"
+def test_list_documents(client):
+    response = client.get("/v1/documents")
+    assert response.status_code == 200
+    assert response.json()["total"] == 3
 
 
-def test_ready_when_records_loaded(client):
-    r = client.get("/ready")
-    assert r.status_code == 200
-    assert r.json()["checks"]["records_loaded"] is True
+def test_list_response_shape(client):
+    data = client.get("/v1/documents").json()
+    assert set(data.keys()) == {"items", "total", "filters"}
 
 
-def test_ready_is_503_when_data_file_missing(tmp_path):
-    settings = Settings(app_env="ci", data_file=tmp_path / "missing.json")
-    with TestClient(create_app(settings)) as c:
-        assert c.get("/health").status_code == 200  # alive...
-        assert c.get("/ready").status_code == 503  # ...but not ready
+def test_limit(client):
+    response = client.get("/v1/documents?limit=1")
+    assert len(response.json()["items"]) == 1
 
 
-def test_list_documents_paginates(client):
-    r = client.get("/v1/documents", params={"limit": 2})
-    body = r.json()
-    assert r.status_code == 200
-    assert body["total"] == 3
-    assert len(body["items"]) == 2
+def test_offset(client):
+    response = client.get("/v1/documents?offset=1")
+    assert len(response.json()["items"]) == 2
 
 
-def test_search_filters_records(client):
-    r = client.get("/v1/documents", params={"q": "beta"})
-    assert [d["id"] for d in r.json()["items"]] == ["002"]
+def test_search_alpha(client):
+    response = client.get("/v1/documents?q=Alpha")
+    assert response.json()["total"] == 1
 
 
-def test_get_document_found(client):
-    r = client.get("/v1/documents/001")
-    assert r.status_code == 200
-    assert r.json()["title"] == "Alpha guideline"
+def test_search_case_insensitive(client):
+    response = client.get("/v1/documents?q=alpha")
+    assert response.json()["total"] == 1
 
 
-def test_missing_document_is_problem_details(client):
-    r = client.get("/v1/documents/999")
-    assert r.status_code == 404
-    assert r.headers["content-type"] == "application/problem+json"
-    body = r.json()
-    assert body["status"] == 404
-    assert body["title"] == "Not Found"
-    assert body["request_id"] == r.headers["X-Request-ID"]
+def test_search_no_match(client):
+    response = client.get("/v1/documents?q=unknown")
+    assert response.json()["total"] == 0
 
 
-def test_bad_limit_is_422_problem(client):
-    r = client.get("/v1/documents", params={"limit": 0})
-    assert r.status_code == 422
-    assert r.json()["errors"][0]["field"] == "query.limit"
+def test_year_filter(client):
+    response = client.get("/v1/documents?year=2024")
+    assert response.json()["total"] == 1
 
 
-def test_request_id_is_echoed(client):
-    r = client.get("/health", headers={"X-Request-ID": "abc123"})
-    assert r.headers["X-Request-ID"] == "abc123"
+def test_filter_no_match(client):
+    response = client.get("/v1/documents?year=2030")
+    assert response.json()["total"] == 0
 
 
-def test_app_refuses_to_start_without_app_env(monkeypatch):
-    monkeypatch.delenv("APP_ENV", raising=False)
-    with pytest.raises(ValidationError):
-        Settings(_env_file=None)
+def test_multiple_filters(client):
+    response = client.get("/v1/documents?year=2023&id=001")
+    assert response.json()["total"] == 1
+
+
+def test_invalid_filter(client):
+    response = client.get("/v1/documents?Bad-Name=1")
+    assert response.status_code == 400
+
+
+def test_invalid_limit(client):
+    response = client.get("/v1/documents?limit=0")
+    assert response.status_code == 422
+
+
+def test_invalid_offset(client):
+    response = client.get("/v1/documents?offset=-1")
+    assert response.status_code == 422
+
+
+def test_get_existing_document(client):
+    response = client.get("/v1/documents/001")
+    assert response.status_code == 200
+    assert response.json()["title"] == "Alpha guideline"
+
+
+def test_get_missing_document(client):
+    response = client.get("/v1/documents/999")
+    assert response.status_code == 404

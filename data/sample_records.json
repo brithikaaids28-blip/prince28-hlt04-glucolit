@@ -1,5 +1,6 @@
 
 
+
 [
   {
     "id": "001",
@@ -11,7 +12,8 @@
     "population": "Adults aged 18-70 with type 2 diabetes participating in a lifestyle management program in India",
     "sample_size": 18950,
     "country": "India",
-    "outcome": "70.0% had poor glycemic control (HbA1c >= 7%); obesity prevalence was 57.2%",
+   "outcome": "70.0% had poor glycemic control (HbA1c >= 7%); obesity prevalence was 57.2%",
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11937334/",
     "licence": "CC BY 4.0"
   },
   {
@@ -25,6 +27,7 @@
     "sample_size": 55639,
     "country": "India",
     "outcome": "76.6% of patients had uncontrolled diabetes (HbA1c >= 7%)",
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6673766/",
     "licence": "CC BY-NC 4.0"
   }
 ]
