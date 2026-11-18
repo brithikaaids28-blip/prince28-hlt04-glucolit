@@ -15,10 +15,10 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "glucolit"
-    # No default: missing APP_ENV makes the app refuse to start.
     app_env: Literal["local", "ci", "production"]
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     data_file: Path = Path("data/sample_records.json")
+    database_url: str
 
 
 @lru_cache
