@@ -81,3 +81,31 @@ records=2 inserted=0 updated=0 unchanged=2
 ```
 
 Result: SHA-256 fingerprint-based loading successfully detects changes, updates modified records, and skips unchanged records.
+## GIN Index EXPLAIN Test
+
+### Query: pmcid=PMC11937334
+
+```text
+-- 1) What the planner chooses on its own:
+Seq Scan on documents  (cost=0.00..11.00 rows=1 width=36) (actual time=0.709..0.710 rows=1.00 loops=1)
+  Filter: (metadata @> '{"pmcid": "PMC11937334"}'::jsonb)
+  Rows Removed by Filter: 1
+  Buffers: shared read=1 dirtied=1
+Planning:
+  Buffers: shared hit=143 read=8 dirtied=1
+Planning Time: 6.124 ms
+Execution Time: 0.738 ms
+
+-- 2) Seq scan switched off:
+Bitmap Heap Scan on documents  (cost=12.81..16.82 rows=1 width=36) (actual time=1.763..1.765 rows=1.00 loops=1)
+  Recheck Cond: (metadata @> '{"pmcid": "PMC11937334"}'::jsonb)
+  Heap Blocks: exact=1
+  Buffers: shared hit=2 read=2
+  ->  Bitmap Index Scan on ix_documents_metadata_gin  (cost=0.00..12.81 rows=1 width=0) (actual time=1.728..1.728 rows=1.00 loops=1)
+        Index Cond: (metadata @> '{"pmcid": "PMC11937334"}'::jsonb)
+        Index Searches: 1
+        Buffers: shared hit=1 read=2
+Planning:
+  Buffers: shared hit=1
+Planning Time: 0.080 ms
+Execution Time: 1.820 ms
