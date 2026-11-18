@@ -1,28 +1,37 @@
 """Health and readiness endpoints."""
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException
+
+from glucolit.api.deps import check_database
 
 router = APIRouter()
 
 
 @router.get("/health")
-def health():
+async def health():
+    """Check whether the application is running."""
     return {"status": "ok"}
 
 
 @router.get("/ready")
-def ready(request: Request):
-    records_loaded = request.app.state.records_loaded
+async def ready():
+    """Check whether the database is available."""
+    database_ready = await check_database()
 
-    if not records_loaded:
+    if not database_ready:
         raise HTTPException(
             status_code=503,
-            detail="Data file is not ready",
+            detail={
+                "status": "not ready",
+                "checks": {
+                    "database": False,
+                },
+            },
         )
 
     return {
         "status": "ready",
         "checks": {
-            "records_loaded": True,
+            "database": True,
         },
     }

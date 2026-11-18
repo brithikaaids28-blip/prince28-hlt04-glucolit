@@ -18,9 +18,10 @@ from glucolit.db.session import AsyncSessionLocal, engine
 # Use PMCID as the stable unique identifier.
 ID_FIELD = "pmcid"
 
+# PMCID is intentionally not excluded because it must be
+# stored in metadata for API filtering.
 KNOWN = {
     "id",
-    "pmcid",
     "title",
     "source_url",
     "licence",
@@ -30,9 +31,9 @@ KNOWN = {
 
 
 def fingerprint(record: dict) -> str:
-    """Generate a stable SHA-256 fingerprint."""
+    """Generate a stable SHA-256 fingerprint for loader version 2."""
     canonical = json.dumps(
-        record,
+        {"loader_version": 2, "record": record},
         sort_keys=True,
         ensure_ascii=False,
         separators=(",", ":"),
