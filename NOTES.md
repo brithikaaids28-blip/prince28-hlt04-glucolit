@@ -118,3 +118,19 @@ Execution Time: 1.820 ms
 - Container user: app (UID 999)
 - Dependency installation steps successfully cached.
 - Cache test: modified health endpoint docstring and restored it.
+
+## Day 05 - Docker Compose Stack Results
+
+- Docker Compose stack started successfully.
+- PostgreSQL: Healthy.
+- Redis: Healthy.
+- Migration container: Exited (0).
+- API container: Healthy.
+- Initial migration: 2 records inserted, 0 updated, 0 unchanged.
+- API documentation: `/docs` loaded successfully.
+- GET `/v1/documents`: Returned 2 documents.
+- Database stopped: `/health` returned `ok`.
+- Database stopped: `/ready` returned `not ready`.
+- Database restarted: `/ready` returned `ready`.
+- Second migration: 2 records, 0 inserted, 0 updated, 2 unchanged.
+- PostgreSQL data persisted after `docker compose down` and restart.
