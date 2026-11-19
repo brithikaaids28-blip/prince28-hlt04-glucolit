@@ -109,3 +109,12 @@ Planning:
   Buffers: shared hit=1
 Planning Time: 0.080 ms
 Execution Time: 1.820 ms
+## Day 04 - Docker Build Results
+
+- First Docker build: 114.4 seconds
+- Cached rebuild: 41.3 seconds
+- Docker image: glucolit:dev
+- Image disk usage: 300 MB
+- Container user: app (UID 999)
+- Dependency installation steps successfully cached.
+- Cache test: modified health endpoint docstring and restored it.
