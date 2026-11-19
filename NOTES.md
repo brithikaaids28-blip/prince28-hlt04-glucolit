@@ -109,3 +109,118 @@ Planning:
   Buffers: shared hit=1
 Planning Time: 0.080 ms
 Execution Time: 1.820 ms
+## Day 04 - Docker Build Results
+
+- First Docker build: 114.4 seconds
+- Cached rebuild: 41.3 seconds
+- Docker image: glucolit:dev
+- Image disk usage: 300 MB
+- Container user: app (UID 999)
+- Dependency installation steps successfully cached.
+- Cache test: modified health endpoint docstring and restored it.
+
+## Day 05 - Docker Compose Stack Results
+
+- Docker Compose stack started successfully.
+- PostgreSQL: Healthy.
+- Redis: Healthy.
+- Migration container: Exited (0).
+- API container: Healthy.
+- Initial migration: 2 records inserted, 0 updated, 0 unchanged.
+- API documentation: `/docs` loaded successfully.
+- GET `/v1/documents`: Returned 2 documents.
+- Database stopped: `/health` returned `ok`.
+- Database stopped: `/ready` returned `not ready`.
+- Database restarted: `/ready` returned `ready`.
+- Second migration: 2 records, 0 inserted, 0 updated, 2 unchanged.
+- PostgreSQL data persisted after `docker compose down` and restart.
+
+## D04 - Docker, Compose and tests
+
+### Clean clone verification
+
+Created a fresh clone using `git clone . ..\prince28-hlt04-glucolit-check`.
+
+Successfully ran `docker compose up --build -d` without relying on the original local `.env` or `.venv`.
+
+- API: healthy
+- PostgreSQL: healthy
+- Redis: healthy
+- Migrations: exited with code 0
+- Fresh database: 2 records inserted, 0 updated, 0 unchanged
+
+### Clean clone container status
+
+```text
+NAME                 IMAGE                    SERVICE   STATUS
+glucolit-api-1       glucolit-api             api       Up (healthy)
+glucolit-db-1        pgvector/pgvector:pg17   db        Up (healthy)
+glucolit-migrate-1   glucolit-migrate         migrate   Exited (0)
+glucolit-redis-1     redis:7-alpine           redis     Up (healthy)
+```
+
+### Clean clone migration logs
+
+```text
+Running upgrade -> 1d1bad238490, create documents and pages tables
+Running upgrade 1d1bad238490 -> 38174267d419, add gin index on metadata
+records=2 inserted=2 updated=0 unchanged=0
+```
+
+### Image and Docker security evidence
+
+```text
+Image: glucolit:dev
+Disk usage: 300 MB
+Target: under 400 MB
+
+uid=999(app) gid=999(app) groups=999(app)
+```
+
+### Tests and coverage
+
+```text
+Unit tests:
+16 passed
+
+Integration tests:
+7 passed
+
+Unit-only coverage:
+TOTAL 80%
+
+Combined coverage:
+TOTAL 93%
+
+Combined tests:
+23 passed in 15.69s
+```
+
+### Uncovered code
+
+- `src/glucolit/api/middleware.py:23-28` - middleware edge cases.
+- `src/glucolit/logging_setup.py:11-21` - logging configuration paths.
+
+These are not test failures. They are areas where additional tests could improve coverage.
+
+### Readiness and liveness
+
+```text
+Database stopped:
+  /health -> ok
+  /ready  -> not ready
+
+Database started:
+  /ready  -> ready
+```
+
+A load balancer should stop sending traffic to an instance that is not ready because it cannot safely serve database-dependent requests. It should not restart the application because restarting the app will not fix an unavailable database.
+
+### Build evidence
+
+- First build: 114.4 seconds.
+- Cached rebuild: 41.3 seconds.
+- Docker image disk usage: 300 MB.
+- Container runs as non-root user `app` (UID 999).
+
+Docker build cache reuses unchanged layers, avoiding unnecessary dependency installation and reducing rebuild time.
