@@ -1,6 +1,8 @@
 
+
 # CI: every pull request and every push to main.
 # lint -> unit + integration tests -> build image
+
 name: CI
 
 on:
@@ -33,7 +35,10 @@ jobs:
           --health-interval 5s --health-timeout 3s --health-retries 10
 
     env:
-     TEST_DATABASE_URL: postgresql://app:app@localhost:5433/app  # pragma: allowlist secret
+      APP_ENV: ci
+      DATABASE_URL: postgresql://app:app@localhost:5433/app  # pragma: allowlist secret
+      TEST_DATABASE_URL: postgresql://app:app@localhost:5433/app  # pragma: allowlist secret
+
     steps:
       - uses: actions/checkout@v7
 
