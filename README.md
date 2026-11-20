@@ -2,8 +2,15 @@
 
 A research assistant for diabetes literature that answers questions from open-access papers with paper and section citations and the study design.
 
-**Status:** Day 1 foundation (FastAPI skeleton, quality gates). Live URL from Day 5.
+**Status:** Deployed and running on Render.
 
+**Live API:** https://glucolit-main.onrender.com
+
+**Health Check:** https://glucolit-main.onrender.com/health
+
+**Readiness Check:** https://glucolit-main.onrender.com/ready
+
+[![CI](https://github.com/brithikaaids28-blip/prince28-hlt04-glucolit/actions/workflows/ci.yml/badge.svg)](https://github.com/brithikaaids28-blip/prince28-hlt04-glucolit/actions/workflows/ci.yml)
 ## Who it's for
 
 Endocrinology postgraduate resident at a Chennai medical college writing a thesis on type 2 diabetes in South Indian adults.

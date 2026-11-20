@@ -1,86 +1,64 @@
-\## Database Migrations
+## Database Migrations
 
+### Migration 1: Create documents and pages
 
+- Revision: `1d1bad238490`
+- Created `documents` and `pages` tables.
+- Applied successfully to Neon PostgreSQL.
 
-\### Migration 1: Create documents and pages
+### Migration 2: Add GIN index on metadata
 
-\- Revision: `1d1bad238490`
+- Revision: `38174267d419`
+- Previous revision: `1d1bad238490`
+- Created `ix_documents_metadata_gin` using `jsonb_path_ops`.
 
-\- Created `documents` and `pages` tables.
+### Migration Verification
 
-\- Applied successfully to Neon PostgreSQL.
+- `uv run alembic upgrade head` — Passed
+- `uv run alembic downgrade -1` — Passed
+- `uv run alembic current` — Returned `1d1bad238490` after downgrade
+- `uv run alembic upgrade head` — Passed again
+- `uv run alembic history` — Passed
 
-
-
-\### Migration 2: Add GIN index on metadata
-
-\- Revision: `38174267d419`
-
-\- Previous revision: `1d1bad238490`
-
-\- Created `ix\_documents\_metadata\_gin` using `jsonb\_path\_ops`.
-
-
-
-\### Migration Verification
-
-
-
-\- `uv run alembic upgrade head` — Passed
-
-\- `uv run alembic downgrade -1` — Passed
-
-\- `uv run alembic current` — Returned `1d1bad238490` after downgrade
-
-\- `uv run alembic upgrade head` — Passed again
-
-\- `uv run alembic history` — Passed
-
-
-
-\### Migration History
-
-
+### Migration History
 
 ```text
-
 1d1bad238490 -> 38174267d419 (head), add gin index on metadata
-
 <base> -> 1d1bad238490, create documents and pages tables
-
 ```
-
-
 
 The downgrade and upgrade test confirmed that the migration can be rolled back and reapplied successfully.
 
-
-
-### Idempotent Loader Test Results
+## Idempotent Loader Test Results
 
 Tested using `uv run python scripts/load_db.py`.
 
-**Test 1 – Existing records unchanged**
+**Test 1 — Existing records unchanged**
+
 ```text
 records=2 inserted=0 updated=0 unchanged=2
 ```
 
-**Test 2 – Modified one record**
+**Test 2 — Modified one record**
+
 ```text
 records=2 inserted=0 updated=1 unchanged=1
 ```
 
-**Test 3 – Restored original record**
+**Test 3 — Restored original record**
+
 ```text
 records=2 inserted=0 updated=1 unchanged=1
 ```
 
 **Final verification**
+
 ```text
 records=2 inserted=0 updated=0 unchanged=2
 ```
 
 Result: SHA-256 fingerprint-based loading successfully detects changes, updates modified records, and skips unchanged records.
+
 ## GIN Index EXPLAIN Test
 
 ### Query: pmcid=PMC11937334
@@ -109,13 +87,15 @@ Planning:
   Buffers: shared hit=1
 Planning Time: 0.080 ms
 Execution Time: 1.820 ms
+```
+
 ## Day 04 - Docker Build Results
 
 - First Docker build: 114.4 seconds
 - Cached rebuild: 41.3 seconds
-- Docker image: glucolit:dev
+- Docker image: `glucolit:dev`
 - Image disk usage: 300 MB
-- Container user: app (UID 999)
+- Container user: `app` (UID 999)
 - Dependency installation steps successfully cached.
 - Cache test: modified health endpoint docstring and restored it.
 
@@ -135,11 +115,15 @@ Execution Time: 1.820 ms
 - Second migration: 2 records, 0 inserted, 0 updated, 2 unchanged.
 - PostgreSQL data persisted after `docker compose down` and restart.
 
-## D04 - Docker, Compose and tests
+## D04 - Docker, Compose and Tests
 
-### Clean clone verification
+### Clean Clone Verification
 
-Created a fresh clone using `git clone . ..\prince28-hlt04-glucolit-check`.
+Created a fresh clone using:
+
+```cmd
+git clone . ..\prince28-hlt04-glucolit-check
+```
 
 Successfully ran `docker compose up --build -d` without relying on the original local `.env` or `.venv`.
 
@@ -149,7 +133,7 @@ Successfully ran `docker compose up --build -d` without relying on the original 
 - Migrations: exited with code 0
 - Fresh database: 2 records inserted, 0 updated, 0 unchanged
 
-### Clean clone container status
+### Clean Clone Container Status
 
 ```text
 NAME                 IMAGE                    SERVICE   STATUS
@@ -159,7 +143,7 @@ glucolit-migrate-1   glucolit-migrate         migrate   Exited (0)
 glucolit-redis-1     redis:7-alpine           redis     Up (healthy)
 ```
 
-### Clean clone migration logs
+### Clean Clone Migration Logs
 
 ```text
 Running upgrade -> 1d1bad238490, create documents and pages tables
@@ -167,7 +151,7 @@ Running upgrade 1d1bad238490 -> 38174267d419, add gin index on metadata
 records=2 inserted=2 updated=0 unchanged=0
 ```
 
-### Image and Docker security evidence
+### Image and Docker Security Evidence
 
 ```text
 Image: glucolit:dev
@@ -177,7 +161,7 @@ Target: under 400 MB
 uid=999(app) gid=999(app) groups=999(app)
 ```
 
-### Tests and coverage
+### Tests and Coverage
 
 ```text
 Unit tests:
@@ -196,14 +180,14 @@ Combined tests:
 23 passed in 15.69s
 ```
 
-### Uncovered code
+### Uncovered Code
 
-- `src/glucolit/api/middleware.py:23-28` - middleware edge cases.
-- `src/glucolit/logging_setup.py:11-21` - logging configuration paths.
+- `src/glucolit/api/middleware.py:23-28` — middleware edge cases.
+- `src/glucolit/logging_setup.py:11-21` — logging configuration paths.
 
 These are not test failures. They are areas where additional tests could improve coverage.
 
-### Readiness and liveness
+### Readiness and Liveness
 
 ```text
 Database stopped:
@@ -216,7 +200,7 @@ Database started:
 
 A load balancer should stop sending traffic to an instance that is not ready because it cannot safely serve database-dependent requests. It should not restart the application because restarting the app will not fix an unavailable database.
 
-### Build evidence
+### Build Evidence
 
 - First build: 114.4 seconds.
 - Cached rebuild: 41.3 seconds.
@@ -224,3 +208,54 @@ A load balancer should stop sending traffic to an instance that is not ready bec
 - Container runs as non-root user `app` (UID 999).
 
 Docker build cache reuses unchanged layers, avoiding unnecessary dependency installation and reducing rebuild time.
+
+## Day 05 - CI/CD and Production Deployment
+
+### GitHub Actions
+
+- CI workflow: `.github/workflows/ci.yml`
+- CI runs linting, tests, and Docker image build.
+- Docker image is published to GitHub Container Registry (GHCR).
+- CD workflow runs after CI succeeds.
+- Production migrations and deployment smoke tests are included in CD.
+
+### Production Deployment
+
+- Hosting platform: Render
+- Service: `glucolit-api`
+- Live API: https://glucolit-main.onrender.com
+- Health endpoint: https://glucolit-main.onrender.com/health
+- Readiness endpoint: https://glucolit-main.onrender.com/ready
+- Database: Neon PostgreSQL
+
+### Production Health Verification
+
+Latest verified health response:
+
+```json
+{
+  "status": "ok",
+  "app": "glucolit",
+  "env": "production",
+  "version": "cb723a3"
+}
+```
+
+- Health endpoint: HTTP 200.
+- Readiness endpoint: database readiness checked.
+- UptimeRobot monitor: UP.
+- Monitor interval: 5 minutes.
+
+### Automated Quality Checks
+
+```text
+Ruff check: Passed
+Ruff format check: Passed
+Pytest: 17 passed, 7 skipped
+```
+
+### Deployment Rollback Verification
+
+- Rollback test: Pending verification.
+- Roll-forward test: Pending verification.
+- Record the deployment versions and test results here after completing both tests.
