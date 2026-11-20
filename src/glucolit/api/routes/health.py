@@ -16,7 +16,7 @@ async def check_database() -> bool:
         return False
 
 
-@router.get("/health")
+@router.api_route("/health", methods=["GET", "HEAD"])
 def health():
     settings = get_settings()
     return {
