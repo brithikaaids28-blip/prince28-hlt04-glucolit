@@ -1,7 +1,12 @@
-def test_health(client):
+def test_health_is_ok(client):
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    assert response.json()["status"] == "ok"
+
+
+def test_health_reports_version(client):
+    response = client.get("/health")
+    assert response.json()["version"] == "dev"
 
 
 def test_list_documents(client):

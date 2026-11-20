@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     data_file: Path = Path("data/sample_records.json")
     database_url: str
 
+    # The commit this image was built from. CI sets it; locally "dev".
+    git_sha: str = "dev"
+
 
 @lru_cache
 def get_settings() -> Settings:
