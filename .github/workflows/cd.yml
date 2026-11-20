@@ -1,6 +1,7 @@
 
 
 
+
 name: CD
 
 on:
@@ -79,6 +80,7 @@ jobs:
         if: steps.select.outputs.deploy_type == 'normal'
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          APP_ENV: production
         run: uv run alembic upgrade head
 
       - name: Skip migrations for rollback
