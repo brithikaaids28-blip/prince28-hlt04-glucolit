@@ -259,3 +259,40 @@ Pytest: 17 passed, 7 skipped
 - Rollback test: Pending verification.
 - Roll-forward test: Pending verification.
 - Record the deployment versions and test results here after completing both tests.
+## D03 · PostgreSQL
+
+### Migration log
+- Migration revisions: `1d1bad238490` and `38174267d419`
+- Tested migration downgrade, upgrade, current revision and history.
+- Confirmed migrations run successfully.
+
+### Database loader
+- First run: 2 unchanged records.
+- Modified record test: 1 updated, 1 unchanged.
+- Restored record test: 1 unchanged.
+- Confirmed the loader is idempotent.
+
+### EXPLAIN
+Command:
+`uv run python scripts/explain.py pmcid PMC11937334`
+
+- Initial query: Seq Scan.
+- After indexing: Bitmap Index Scan on `ix_documents_metadata_gin`.
+- The index improved the query plan.
+## D05 · CI/CD and Deployment
+
+### Deployment
+- CI workflow validates code changes.
+- CD workflow deploys the application.
+- Live health endpoint: https://glucolit-main.onrender.com/health
+- Smoke test: `uv run python scripts/smoke.py`
+- Result: Passed; production health endpoint returned HTTP 200.
+
+### Rollback drill
+- Previous deployment version: Record the previous working commit/version.
+- Rollback procedure: Redeploy the previous working commit through Render.
+- Verify rollback using the `/health` endpoint.
+
+### Lead time
+- Lead time: Record the time between pushing a code change and successful production deployment.
+- Deployment verification: Smoke test passed.
