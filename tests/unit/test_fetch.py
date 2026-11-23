@@ -322,3 +322,59 @@ def test_download_skips_no_derivatives_article(tmp_path, monkeypatch):
 
     assert result is False
     assert client.calls == 0
+
+
+# 26. Retry failed network requests and succeed on the third attempt.
+def test_download_retries_network_failure(tmp_path, monkeypatch):
+    monkeypatch.setattr(fetch, "RAW", tmp_path)
+
+    class RetryResponse:
+        content = b"<article><body>Test paper</body></article>"
+
+        def raise_for_status(self):
+            pass
+
+    class RetryClient:
+        calls = 0
+
+        async def get(self, *args, **kwargs):
+            self.calls += 1
+            if self.calls < 3:
+                raise OSError("Temporary network failure")
+            return RetryResponse()
+
+    class AllowRobots:
+        async def allowed(self, url):
+            return True
+
+    class NoWaitGate:
+        async def wait(self, url):
+            pass
+
+    async def no_sleep(seconds):
+        pass
+
+    monkeypatch.setattr(fetch.asyncio, "sleep", no_sleep)
+
+    source = fetch.Source(
+        url="https://pmc.ncbi.nlm.nih.gov/articles/PMC12345678/",
+        source="pmc",
+        licence="CC BY 4.0",
+        title="Test paper",
+    )
+
+    client = RetryClient()
+    manifest = fetch.Manifest(tmp_path / "manifest.jsonl")
+
+    result = asyncio.run(
+        fetch.download_one(
+            source,
+            client,
+            AllowRobots(),
+            NoWaitGate(),
+            manifest,
+        )
+    )
+
+    assert result is True
+    assert client.calls == 3
