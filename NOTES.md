@@ -254,11 +254,27 @@ Ruff format check: Passed
 Pytest: 17 passed, 7 skipped
 ```
 
+
 ### Deployment Rollback Verification
 
-- Rollback test: Pending verification.
-- Roll-forward test: Pending verification.
-- Record the deployment versions and test results here after completing both tests.
+**Rollback Test**
+- Status: SUCCESS
+- Previous working commit: `25815651c150f28d4f87eb32186b4a433620d001`
+- Production health check: HTTP 200
+- Verified production version: `25815651c150f28d4f87eb32186b4a433620d001`
+
+**Roll-forward Test**
+- Status: SUCCESS
+- Latest commit: `e4f3c027f0eeb7a37b30edfde66f87bed38e0df6`
+- Production health check: HTTP 200
+- Verified production version: `e4f3c027f0eeb7a37b30edfde66f87bed38e0df6`
+
+**Final Result**
+- Rollback deployment: Passed
+- Roll-forward deployment: Passed
+- Production health verification: Passed
+- Both deployment versions verified successfully.
+
 ## D03 · PostgreSQL
 
 ### Migration log
