@@ -1,5 +1,6 @@
 
 
+
 # Runs on every "git commit". If a hook fails, the commit is stopped.
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -11,6 +12,7 @@ repos:
       - id: check-toml
       - id: check-added-large-files
         args: ["--maxkb=500"]
+        exclude: ^data/manifest\.jsonl$
       - id: detect-private-key
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -27,4 +29,4 @@ repos:
     hooks:
       - id: detect-secrets
         # Generated Alembic revision IDs are not secrets.
-        exclude: ^(uv\.lock|alembic/versions/.*|migrations/versions/.*)$
+        exclude: ^(uv\.lock|data/manifest\.jsonl|alembic/versions/.*|migrations/versions/.*)$
