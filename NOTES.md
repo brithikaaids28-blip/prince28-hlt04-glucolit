@@ -312,3 +312,39 @@ Command:
 ### Lead time
 - Lead time: Record the time between pushing a code change and successful production deployment.
 - Deployment verification: Smoke test passed.
+
+## D06 · Collecting the corpus
+
+- Start target: 500 full-text papers
+- Collected today: 18 files, 200 estimated pages, 1.88 MiB (from DATASET.md)
+- Doors used: URL list, Git repository, PMC Open Access services
+
+### Licence check
+
+| Source | Licence or terms, in my words | May I show full text in answers? |
+|---|---|---|
+| PMC articles | CC BY 4.0: reuse allowed with attribution and licence notice | Yes, with attribution and licence conditions |
+| PMC articles | CC BY-NC: reuse restricted to non-commercial purposes | Only if the use is non-commercial and conditions are met |
+| PMC articles | CC BY-NC-SA: non-commercial reuse with share-alike conditions | Only if the use is non-commercial and conditions are met |
+| PMC articles | CC BY-NC-ND: non-commercial use; no derivatives | Do not reproduce or adapt full text; these were skipped |
+
+### robots.txt
+
+- Site: PMC (https://pmc.ncbi.nlm.nih.gov/). The downloader checks robots.txt before requesting articles.
+- Was anything blocked for my bot? Two NoDerivatives licence entries were skipped by the downloader. These were licence restrictions, not confirmed robots.txt blocks.
+
+### Kill and resume
+
+- Run 1: Ctrl+C test: not recorded; verify whether this test was performed.
+- Run 2: downloaded=10, skipped=2 (from the collection run).
+- Run 3: not yet verified; run the downloader again to confirm resume behaviour.
+
+### Capacity (from docs/CAPACITY.md)
+
+- Tokens per page, estimated: 619.
+- Full corpus: 34.38 M tokens, 68,757 chunks, embedding about Rs 653.19, vectors 268.58 MiB.
+- The number that surprised me most, and why: The estimated embedding cost is relatively low for 5,000 papers. Vector storage is also manageable, but actual database storage must be checked.
+
+### One thing that went wrong today, and how I fixed it
+
+- The downloader skipped two NoDerivatives articles. I kept them out of the downloaded corpus according to the licence policy and continued with eligible papers.
