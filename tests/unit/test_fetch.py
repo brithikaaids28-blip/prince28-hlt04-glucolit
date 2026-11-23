@@ -270,3 +270,55 @@ def test_robots_failure_blocks_url():
     result = asyncio.run(robots.allowed("https://example.com/paper.pdf"))
 
     assert result is False
+
+
+# 20. PMC filenames use XML extension.
+def test_filename_uses_xml_extension():
+    filename = fetch.filename_for("https://pmc.ncbi.nlm.nih.gov/articles/PMC11078398/")
+    assert filename.endswith(".xml")
+
+
+# 21. Extract a PMCID from an article URL.
+def test_get_pmcid():
+    url = "https://pmc.ncbi.nlm.nih.gov/articles/PMC11078398/"
+    assert fetch.get_pmcid(url) == "PMC11078398"
+
+
+# 22. Reject URLs without a PMCID.
+def test_get_pmcid_invalid_url():
+    with pytest.raises(ValueError, match="Could not find a PMCID"):
+        fetch.get_pmcid("https://example.com/article")
+
+
+# 23. Recognise valid article XML.
+def test_has_article():
+    xml = b"<article><body>Test paper</body></article>"
+    assert fetch.has_article(xml) is True
+
+
+# 24. Reject XML without an article.
+def test_has_article_rejects_invalid_content():
+    xml = b"<OAI-PMH><error>Not found</error></OAI-PMH>"
+    assert fetch.has_article(xml) is False
+
+
+# 25. Skip NoDerivatives articles without requesting them.
+def test_download_skips_no_derivatives_article(tmp_path, monkeypatch):
+    monkeypatch.setattr(fetch, "RAW", tmp_path)
+
+    source = fetch.Source(
+        url="https://pmc.ncbi.nlm.nih.gov/articles/PMC12345678/",
+        source="pmc",
+        licence="CC BY-NC-ND 4.0",
+        title="Test paper",
+    )
+
+    client = FakeClient()
+    robots = fetch.Robots(client)
+    gate = fetch.HostGate(1)
+    manifest = fetch.Manifest(tmp_path / "manifest.jsonl")
+
+    result = asyncio.run(fetch.download_one(source, client, robots, gate, manifest))
+
+    assert result is False
+    assert client.calls == 0
