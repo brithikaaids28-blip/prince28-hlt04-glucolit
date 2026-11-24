@@ -348,3 +348,49 @@ Command:
 ### One thing that went wrong today, and how I fixed it
 
 - The downloader skipped two NoDerivatives articles. I kept them out of the downloaded corpus according to the licence policy and continued with eligible papers.
+
+## D07 · Parsing the corpus
+
+### Corpus parsing results
+
+- Downloaded XML articles available: 60
+- Articles successfully parsed: 60
+- Articles failed: 0
+- Total extracted pages: 889
+- Parsing format: JATS XML
+- Parser used: GlucoLit JATS parser
+- Database: PostgreSQL (Neon)
+- Document external ID format: `parsed:PMC...`
+
+### Database verification
+
+| Check | Result |
+|---|---:|
+| Parsed documents | 60 |
+| Parsed pages | 889 |
+| Parsing failures | 0 |
+
+### Testing
+
+- Unit tests: 60 passed
+- Integration tests: 10 passed
+- Ruff lint: Passed
+- Ruff formatting: Passed
+
+### What went well
+
+- Successfully parsed all 60 downloaded research articles.
+- Extracted article titles, abstracts, sections and page text.
+- Stored parsed documents and pages in PostgreSQL.
+- Verified database counts.
+- No parsing failures were recorded.
+
+### Known limitations
+
+- Current corpus contains XML articles; PDF and HTML parser comparisons were not performed.
+- Page divisions for XML articles are generated from extracted text rather than original PDF page boundaries.
+- Nested JATS structures may need additional parser improvements.
+
+### One thing learned
+
+I learned how to parse research articles, extract structured text, store pages in PostgreSQL and verify the complete corpus.
