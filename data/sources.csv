@@ -4,30 +4,127 @@
 # Source: PubMed Central (PMC)
 # Retrieval: Use approved PMC services for automated downloads.
 url,source,licence,title
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC11078398/,pmc,CC BY 4.0,Tamil Nadu STEPS Survey
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC8725109/,pmc,CC BY-NC-SA 4.0,Epidemiology of type 2 diabetes in India
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC3263873/,pmc,CC BY-NC-ND 3.0,Quantifying the Effect of Metformin Treatment and Dose on Glycemic Control
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC12055074/,pmc,CC BY 4.0,Meta-analysis of SGLT-2 inhibitors and heart failure
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC4854021/,pmc,CC BY-NC 3.0,DPP-4 inhibitors and risk of hypoglycaemia
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC12859889/,pmc,CC BY-NC-ND 4.0,Exercise characteristics and HbA1c in type 2 diabetes
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC13485558/,pmc,CC BY 4.0,Metabolic and clinical markers of T2D in obese Indians: an age-sex matched case-control study
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC13529500/,pmc,CC BY 4.0,Digital lifestyle program in type 2 diabetes in India
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC12883125/,pmc,CC BY-NC-SA 4.0,CURES study diabetes complications
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC10220626/,pmc,CC BY 4.0,Diet and Exercise Effects on Glucose Metabolism
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC12307720/,pmc,CC BY 4.0,Expert Consensus Statement on Simplified Glycemic Care in Patients With Type 2 Diabetes Mellitus
-https://pmc.ncbi.nlm.nih.gov/articles/PMC13040609/,pmc,CC BY 4.0,"Out-of-Pocket Expenditure and Catastrophic Health Spending Among Patients With Type 2 Diabetes in Rural Tamil Nadu: A Cross-Sectional Study"
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC13040609/,pmc,CC BY 4.0,Out-of-Pocket Expenditure and Catastrophic Health Spending Among Patients With Type 2 Diabetes in Rural Tamil Nadu: A Cross-Sectional Study
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC11170237/,pmc,CC BY 4.0,"Interplay Between the American Diabetes Association's ABC Targets for Diabetes, Insulin Resistance Indices, and Dyslipidemia in Indian Type 2 Diabetes Patients"
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC12790400/,pmc,CC BY 4.0,"Assessment of Prevalence and Risk Factors of Diabetes Distress Among Patients With Type 2 Diabetes Mellitus in an Urban Area of Chengalpattu District, India: A Cross-Sectional Study"
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC13526481/,pmc,CC BY 4.0,"Treatment Compliance Among People With Type 2 Diabetes in Rural Tamil Nadu, India: Prevalence, Associated Factors, and a Comparison of Public and Private Care"
-https://pmc.ncbi.nlm.nih.gov/articles/PMC12511898/,pmc,CC BY 4.0,"Insulin Resistance and Beta-Cell Function in the Context of Dyslipidemia in a Non-obese Indian Population With Type 2 Diabetes"
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC12511898/,pmc,CC BY 4.0,Insulin Resistance and Beta-Cell Function in the Context of Dyslipidemia in a Non-obese Indian Population With Type 2 Diabetes
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC12025347/,pmc,CC BY 4.0,"Understanding Diabetes Through the Patients' Lens: A Mixed-Methods Study on Experiences and Outcomes in Urban Areas of Rajasthan, India"
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC12535272/,pmc,CC BY 4.0,Unmasking the Emotional and Behavioral Determinants of Glycemic Control in Diabetes Management
-https://pmc.ncbi.nlm.nih.gov/articles/PMC12536231/,pmc,CC BY 4.0,"Urban-Rural Comparison of Knowledge and Practices of Diabetes Mellitus Among Type 2 Diabetic Population in Telangana: A Cross-Sectional Study"
-https://pmc.ncbi.nlm.nih.gov/articles/PMC10875394/,pmc,CC BY 4.0,"Dietary Practices Among Type 2 Diabetes Patients Visiting a Non-communicable Disease (NCD) Clinic in a District of Western India: A Cross-Sectional Study"
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC12536231/,pmc,CC BY 4.0,Urban-Rural Comparison of Knowledge and Practices of Diabetes Mellitus Among Type 2 Diabetic Population in Telangana: A Cross-Sectional Study
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC10875394/,pmc,CC BY 4.0,Dietary Practices Among Type 2 Diabetes Patients Visiting a Non-communicable Disease (NCD) Clinic in a District of Western India: A Cross-Sectional Study
 
 https://pmc.ncbi.nlm.nih.gov/articles/PMC12085201/,pmc,CC BY 4.0,Determinants of Poor Glycemic Control Among Type 2 Diabetes Patients
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC11293072/,pmc,CC BY 4.0,Type 2 Diabetes Mellitus and Cardiometabolic Prospects
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC11817707/,pmc,CC BY 4.0,Type 2 Diabetes Mellitus: New Pathogenetic Mechanisms Treatment and Complications
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC11345339/,pmc,CC BY 4.0,Differentially Expressed Genes and Pathways in Diabetes
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC10487533/,pmc,CC BY 4.0,Advances in Research on Type 2 Diabetes Mellitus Targets and Therapeutic Agents
+
 https://pmc.ncbi.nlm.nih.gov/articles/PMC4749946/,pmc,CC BY 4.0,Mobile Reminders to Improve Opportunistic Screening of Type 2 Diabetes
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC9118071/,pmc,CC BY 4.0,Equity impact of community mobilisation and mHealth interventions to prevent and control type 2 diabetes
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC9589007/,pmc,CC BY 4.0,Organ-specific metabolic pathways distinguish prediabetes type 2 diabetes and normal tissues
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC9487067/,pmc,CC BY 4.0,Glycaemic control among type 2 diabetes patients in sub-Saharan Africa
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC6926613/,pmc,CC BY 4.0,Prevalence of Type 2 Diabetes and Prediabetes in the Gwalior-Chambal Region of Central India
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC9916932/,pmc,CC BY 4.0,Dysregulation of Gene Expression of Key Signaling Mediators in PBMCs from People with Type 2 Diabetes Mellitus
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC11351708/,pmc,CC BY 4.0,Causal Effects of Oxidative Stress on Diabetes Mellitus and Microvascular Complications
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC9713367/,pmc,CC BY 4.0,Mitochondrial redox impairment and enhanced autophagy in peripheral blood mononuclear cells from type 1 diabetic patients
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC11050166/,pmc,CC BY 4.0,Cross-Domain Text Mining of Pathophysiological Processes Associated with Diabetic Kidney Disease
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC8536137/,pmc,CC BY 4.0,Towards a Parsimonious Pathway Model of Modifiable and Mediating Risk Factors Leading to Diabetes Risk
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC10571932/,pmc,CC BY 4.0,Molecular Effect of Variants in Toll-like Receptor 4 Gene in Saudi Patients with Type 2 Diabetes Mellitus
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC11402502/,pmc,CC BY 4.0,Investigating Interleukin-6 Levels in Type 2 Diabetes Mellitus Patients With and Without Diabetic Nephropathy
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC11128034/,pmc,CC BY 4.0,Exploring the Causal Relationship Between Modifiable Exposures and Diabetes Mellitus
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC12029158/,pmc,CC BY 4.0,Development and Validation of Early Alert Model for Diabetes Mellitus-Tuberculosis Comorbidity
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC11115446/,pmc,CC BY 4.0,Impact of Lifestyle Modification: An Intervention on Newly Diagnosed Diabetics of the Urban Slum of Meerut
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC12985905/,pmc,CC BY 4.0,Diabetes Mellitus as an Integrated Microbiome Immune and Metabolic Disorder
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC12524569/,pmc,CC BY 4.0,Cellular Metabolism and Gene Expression During the Onset of Diabetic Kidney Disease
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC9955149/,pmc,CC BY 4.0,Machine-Learning-Based Diabetes Mellitus Risk Prediction
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC6203034/,pmc,CC BY 4.0,Self-efficacy and diabetes prevention in overweight South Asians with pre-diabetes
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC13401189/,pmc,CC BY 4.0,Biochemical and Molecular Markers Among Prediabetic and Type 2 Diabetes Mellitus Patients
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC13411412/,pmc,CC BY 4.0,Retrospective Study of Biochemical and Haematological Changes in Diabetes Mellitus
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC10617785/,pmc,CC BY 4.0,Type 2 Diabetes Mellitus Pharmacotherapy Review
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC10296863/,pmc,CC BY 4.0,Prevalence of Diabetes Mellitus among Patients with Tuberculosis
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC10481754/,pmc,CC BY-NC 4.0,Advances in the management of type 2 diabetes in adults
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC11445387/,pmc,CC BY 4.0,"Type 2 diabetes mellitus in adults: pathogenesis, prevention and therapy"
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC9409806/,pmc,CC BY 4.0,Recent Progress in the Diagnosis and Management of Type 2 Diabetes Mellitus in the Era of COVID-19 and Single Cell Multi-Omics Technologies
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC8845217/,pmc,CC BY-NC 4.0,Distinct pathoclinical clusters among patients with uncontrolled type 2 diabetes: results from a prospective study in rural India
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC8006839/,pmc,CC BY-NC 4.0,Incidence and pathophysiology of diabetes in South Asian adults living in India and Pakistan compared with US blacks and whites
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC11893406/,pmc,CC BY,Clinical metabolomics in type 2 diabetes mellitus: from pathogenesis to biomarkers
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC10052732/,pmc,CC BY 4.0,"Prevalence of Cognitive Decline in Type 2 Diabetes Mellitus Patients: A Real-World Cross-Sectional Study in Mysuru, India"
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC6961142/,pmc,CC BY-NC 4.0,Monocyte-mediated inflammation and cardiovascular risk factors in type 2 diabetes mellitus: A systematic review and meta-analysis of pre-clinical and clinical studies
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC7139256/,pmc,CC BY-NC 3.0,"Role of inflammatory mediators (TNF-alpha, IL-6, CRP), biochemical and hematological parameters in type 2 diabetes mellitus patients of Kashmir, India"
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC11089191/,pmc,CC BY,Single-cell transcriptomics reveals a role for pancreatic duct cells as potential mediators of inflammation in diabetes mellitus
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC11272961/,pmc,CC BY 4.0,Single-cell analysis of human PBMCs in healthy and type 2 diabetes populations: dysregulated immune networks in type 2 diabetes unveiled through single-cell profiling
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC11983394/,pmc,CC BY 4.0,Association between Baltic sea diet and healthy Nordic diet index with risk of type 2 diabetes mellitus: a case-control study
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC11449758/,pmc,CC BY 4.0,Exploring the design of clinical research studies on the efficacy mechanisms in type 2 diabetes mellitus
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC11007105/,pmc,CC BY 4.0,Association of circulating inflammatory proteins with type 2 diabetes mellitus and its complications: a bidirectional Mendelian randomization study
