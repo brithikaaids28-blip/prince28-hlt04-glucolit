@@ -56,13 +56,15 @@ def read_corpus() -> list[dict]:
 
         text = " ".join(body_text).strip()
 
-        words = len(re.findall(r"\b[\w]+(?:['’-][\w]+)*\b", text))
+        words = len(re.findall(r"\b[\w]+(?:['ΓÇÖ-][\w]+)*\b", text))
         tokens = math.ceil(words * TOKENS_PER_WORD)
         pages = math.ceil(words / WORDS_PER_PAGE) if words else 0
 
         papers.append(
             {
                 "filename": filename,
+                "title": entry.get("title", "Unknown"),
+                "licence": entry.get("licence", "Unknown"),
                 "words": words,
                 "tokens": tokens,
                 "pages": pages,
@@ -174,12 +176,18 @@ def main() -> None:
             f"| Average tokens per paper | {number(tokens_per_paper)} |",
             f"| Average tokens per page | {number(tokens_per_page)} |",
             "",
-            ("**Measurement method:** Text is extracted from each XML `body` element."),
+            "## Paper Licences",
+            "",
+            "| Paper | Licence |",
+            "|---|---|",
+            *[f"| {paper['title'].replace('|', '/')} | {paper['licence']} |" for paper in papers],
+            "",
+            "**Measurement method:** Text is extracted from each XML `body` element.",
             (
                 f"Pages are estimated at {WORDS_PER_PAGE} words per page. "
                 f"Tokens are estimated at {TOKENS_PER_WORD} tokens per word."
             ),
-            ("These are planning estimates, not PDF page counts or tokenizer measurements."),
+            "These are planning estimates, not PDF page counts or tokenizer measurements.",
         ]
     )
 
@@ -189,8 +197,8 @@ def main() -> None:
             "|---|---:|---:|",
             f"| Papers | {number(files)} | {number(target_files)} |",
             f"| Estimated pages | {number(pages)} | {number(target_pages)} |",
-            (f"| Estimated tokens | {number(tokens)} | {number(target_tokens)} |"),
-            (f"| Tokens per page | {number(tokens_per_page)} | {number(tokens_per_page)} |"),
+            f"| Estimated tokens | {number(tokens)} | {number(target_tokens)} |",
+            f"| Tokens per page | {number(tokens_per_page)} | {number(tokens_per_page)} |",
             (
                 f"| Chunks ({args.chunk_tokens} tokens each) | "
                 f"{number(current_chunks)} | {number(chunks)} |"
@@ -209,10 +217,10 @@ def main() -> None:
                 f"{args.dims} embedding dimensions, {args.chunk_tokens} "
                 "tokens per chunk, and 4 bytes per vector value."
             ),
-            ("Storage excludes PostgreSQL indexes, metadata, and text."),
+            "Storage excludes PostgreSQL indexes, metadata, and text.",
             "",
-            ("**Measurement note:** Token counts and pages are estimates based on XML body text."),
-            ("They are not actual embedding tokenizer measurements or PDF page counts."),
+            "**Measurement note:** Token counts and pages are estimates based on XML body text.",
+            "They are not actual embedding tokenizer measurements or PDF page counts.",
         ]
     )
 

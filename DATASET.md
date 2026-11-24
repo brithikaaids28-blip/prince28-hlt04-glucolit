@@ -3,13 +3,42 @@
 <!-- generated:start -->
 | Measurement | Current corpus |
 |---|---:|
-| Downloaded XML papers | 18 |
-| Estimated pages | 200 |
-| Body words | 95,196 |
-| Estimated tokens | 123,762 |
-| Raw XML size | 1.88 MiB |
-| Average tokens per paper | 6,876 |
-| Average tokens per page | 619 |
+| Downloaded XML papers | 24 |
+| Estimated pages | 265 |
+| Body words | 126,369 |
+| Estimated tokens | 164,291 |
+| Raw XML size | 2.79 MiB |
+| Average tokens per paper | 6,845 |
+| Average tokens per page | 620 |
+
+## Paper Licences
+
+| Paper | Licence |
+|---|---|
+| Tamil Nadu STEPS Survey | CC BY 4.0 |
+| Epidemiology of type 2 diabetes in India | CC BY-NC-SA 4.0 |
+| Meta-analysis of SGLT-2 inhibitors and heart failure | CC BY 4.0 |
+| DPP-4 inhibitors and risk of hypoglycaemia | CC BY-NC 3.0 |
+| Metabolic and clinical markers of T2D in obese Indians: an age-sex matched case-control study | CC BY 4.0 |
+| Digital lifestyle program in type 2 diabetes in India | CC BY 4.0 |
+| CURES study diabetes complications | CC BY-NC-SA 4.0 |
+| Diet and Exercise Effects on Glucose Metabolism | CC BY 4.0 |
+| Expert Consensus Statement on Simplified Glycemic Care in Patients With Type 2 Diabetes Mellitus | CC BY 4.0 |
+| Out-of-Pocket Expenditure and Catastrophic Health Spending Among Patients With Type 2 Diabetes in Rural Tamil Nadu: A Cross-Sectional Study | CC BY 4.0 |
+| Interplay Between the American Diabetes Association's ABC Targets for Diabetes, Insulin Resistance Indices, and Dyslipidemia in Indian Type 2 Diabetes Patients | CC BY 4.0 |
+| Assessment of Prevalence and Risk Factors of Diabetes Distress Among Patients With Type 2 Diabetes Mellitus in an Urban Area of Chengalpattu District, India: A Cross-Sectional Study | CC BY 4.0 |
+| Treatment Compliance Among People With Type 2 Diabetes in Rural Tamil Nadu, India: Prevalence, Associated Factors, and a Comparison of Public and Private Care | CC BY 4.0 |
+| Insulin Resistance and Beta-Cell Function in the Context of Dyslipidemia in a Non-obese Indian Population With Type 2 Diabetes | CC BY 4.0 |
+| Understanding Diabetes Through the Patients' Lens: A Mixed-Methods Study on Experiences and Outcomes in Urban Areas of Rajasthan, India | CC BY 4.0 |
+| Unmasking the Emotional and Behavioral Determinants of Glycemic Control in Diabetes Management | CC BY 4.0 |
+| Urban-Rural Comparison of Knowledge and Practices of Diabetes Mellitus Among Type 2 Diabetic Population in Telangana: A Cross-Sectional Study | CC BY 4.0 |
+| Dietary Practices Among Type 2 Diabetes Patients Visiting a Non-communicable Disease (NCD) Clinic in a District of Western India: A Cross-Sectional Study | CC BY 4.0 |
+| Determinants of Poor Glycemic Control Among Type 2 Diabetes Patients | CC BY 4.0 |
+| Type 2 Diabetes Mellitus and Cardiometabolic Prospects | CC BY 4.0 |
+| Type 2 Diabetes Mellitus: New Pathogenetic Mechanisms Treatment and Complications | CC BY 4.0 |
+| Differentially Expressed Genes and Pathways in Diabetes | CC BY 4.0 |
+| Advances in Research on Type 2 Diabetes Mellitus Targets and Therapeutic Agents | CC BY 4.0 |
+| Mobile Reminders to Improve Opportunistic Screening of Type 2 Diabetes | CC BY 4.0 |
 
 **Measurement method:** Text is extracted from each XML `body` element.
 Pages are estimated at 500 words per page. Tokens are estimated at 1.3 tokens per word.
