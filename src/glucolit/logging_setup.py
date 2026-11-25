@@ -3,7 +3,10 @@
 import json
 import logging
 import sys
+from contextvars import ContextVar
 from datetime import UTC, datetime
+
+request_id_ctx: ContextVar[str] = ContextVar("request_id", default="")
 
 
 class JsonFormatter(logging.Formatter):

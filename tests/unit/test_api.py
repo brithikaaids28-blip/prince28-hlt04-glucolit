@@ -84,3 +84,59 @@ def test_get_existing_document(client):
 def test_get_missing_document(client):
     response = client.get("/v1/documents/999")
     assert response.status_code == 404
+
+
+def test_chat_non_streaming(client):
+    response = client.post(
+        "/v1/chat",
+        json={"message": "What is GlucoLit?", "stream": False},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["answer"] == "GlucoLit test answer"
+    assert "usage" in response.json()
+
+
+def test_chat_streaming(client):
+    response = client.post(
+        "/v1/chat",
+        json={"message": "Hello", "stream": True},
+    )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/event-stream")
+    assert "GlucoLit " in response.text
+    assert '"delta": "test "' in response.text
+    assert '"delta": "answer "' in response.text
+    assert "event: done" in response.text
+
+
+def test_chat_empty_message(client):
+    response = client.post(
+        "/v1/chat",
+        json={"message": "", "stream": False},
+    )
+
+    assert response.status_code == 422
+
+
+def test_usage_endpoint(client):
+    response = client.get("/v1/usage")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["calls"] == 2
+    assert data["total_cost_inr"] == 0.0123
+    assert len(data["days"]) == 1
+
+
+def test_usage_custom_days(client):
+    response = client.get("/v1/usage?days=30")
+
+    assert response.status_code == 200
+
+
+def test_usage_invalid_days(client):
+    response = client.get("/v1/usage?days=100")
+
+    assert response.status_code == 422

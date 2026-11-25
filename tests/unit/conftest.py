@@ -1,9 +1,14 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from glucolit.api.deps import get_repository
+from glucolit.api.deps import (
+    get_gateway,
+    get_repository,
+    get_usage_repository,
+)
 from glucolit.api.main import create_app
 from glucolit.config import Settings
+from glucolit.llm.gateway import FakeLLM, LLMGateway
 
 SAMPLE = [
     {"id": "001", "title": "Alpha guideline", "year": 2023},
@@ -32,6 +37,19 @@ class FakeRepo:
         )
 
 
+class FakeUsageRepo:
+    async def by_day(self, days=7):
+        return [
+            {
+                "day": "2026-11-25",
+                "calls": 2,
+                "errors": 0,
+                "fallbacks": 1,
+                "cost_inr": 0.0123,
+            }
+        ]
+
+
 @pytest.fixture
 def settings():
     return Settings(
@@ -44,7 +62,12 @@ def settings():
 @pytest.fixture
 def client(settings):
     app = create_app(settings)
+
     app.dependency_overrides[get_repository] = lambda: FakeRepo(SAMPLE)
+    app.dependency_overrides[get_gateway] = lambda: LLMGateway(
+        [FakeLLM(script=["GlucoLit test answer"])]
+    )
+    app.dependency_overrides[get_usage_repository] = lambda: FakeUsageRepo()
 
     with TestClient(app) as test_client:
         yield test_client
