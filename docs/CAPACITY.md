@@ -3,13 +3,13 @@
 <!-- generated:start -->
 | Measurement | Current corpus | Full target |
 |---|---:|---:|
-| Papers | 60 | 500 |
-| Estimated pages | 735 | 6,125 |
-| Estimated tokens | 460,254 | 3,835,450 |
-| Tokens per page | 626 | 626 |
-| Chunks (500 tokens each) | 921 | 7,671 |
-| Embedding cost | Rs 8.74 | Rs 72.87 |
-| Vector storage (1024 dimensions, float32) | 3.60 MiB | 29.96 MiB |
+| Papers | 500 | 500 |
+| Estimated pages | 6,084 | 6,084 |
+| Estimated tokens | 3,791,219 | 3,791,219 |
+| Tokens per page | 623 | 623 |
+| Chunks (500 tokens each) | 7,583 | 7,583 |
+| Embedding cost | Rs 72.03 | Rs 72.03 |
+| Vector storage (1024 dimensions, float32) | 29.62 MiB | 29.62 MiB |
 
 **Assumptions:** 0.20 USD per million tokens, Rs 95.00 per USD.
 1024 embedding dimensions, 500 tokens per chunk, and 4 bytes per vector value.
