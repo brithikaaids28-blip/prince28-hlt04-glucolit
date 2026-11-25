@@ -12,9 +12,11 @@ from glucolit.api.errors import (
     validation_exception_handler,
 )
 from glucolit.api.middleware import RequestMiddleware
-from glucolit.api.routes import documents, health
+from glucolit.api.routes import chat, documents, health
 from glucolit.config import Settings, get_settings
-from glucolit.db.session import engine
+from glucolit.db.llm_calls import LLMCallRepository
+from glucolit.db.session import AsyncSessionLocal, engine
+from glucolit.llm.gateway import build_gateway
 from glucolit.logging_setup import setup_logging
 
 logger = logging.getLogger(__name__)
@@ -28,7 +30,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         logger.info("Starting GlucoLit API with PostgreSQL")
+
+        app.state.system_prompt = (
+            (settings.prompts_dir / "chat_system_v1.md").read_text(encoding="utf-8").strip()
+        )
+
+        usage_repository = LLMCallRepository(AsyncSessionLocal)
+        app.state.gateway = build_gateway(
+            settings,
+            recorder=usage_repository.record,
+        )
+
+        logger.info("LLM gateway and system prompt initialized")
         yield
+
         await engine.dispose()
         logger.info("Database engine disposed")
 
@@ -50,5 +65,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(health.router)
     app.include_router(documents.router)
+    app.include_router(chat.router)
 
     return app

@@ -10,6 +10,8 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    MetaData,
+    Numeric,
     String,
     Text,
     UniqueConstraint,
@@ -31,7 +33,7 @@ NAMING = {
 class Base(DeclarativeBase):
     """Base class for all database models."""
 
-    metadata = __import__("sqlalchemy").MetaData(naming_convention=NAMING)
+    metadata = MetaData(naming_convention=NAMING)
 
 
 class Document(Base):
@@ -67,7 +69,6 @@ class Document(Base):
 
     __table_args__ = (
         Index("ix_documents_doc_type", "doc_type"),
-        # GIN index: makes "metadata @> {...}" filters fast on big tables
         Index(
             "ix_documents_metadata_gin",
             "metadata",
@@ -90,7 +91,6 @@ class Page(Base):
     page_no: Mapped[int] = mapped_column(Integer, nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
 
-    # The section path this page starts in, e.g. ["Fever", "Dengue"]: used for citations.
     headings: Mapped[list[str]] = mapped_column(JSONB, server_default="[]")
 
     document: Mapped["Document"] = relationship(back_populates="pages")
@@ -120,4 +120,27 @@ class ParseFailure(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class LlmCall(Base):
+    """One row per call to a language model: who answered, how long, how much."""
+
+    __tablename__ = "llm_calls"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    request_id: Mapped[str] = mapped_column(String(64), index=True)
+    provider: Mapped[str] = mapped_column(String(40))
+    model: Mapped[str] = mapped_column(String(80))
+    purpose: Mapped[str] = mapped_column(String(40), server_default="chat")
+    prompt_version: Mapped[str] = mapped_column(String(80), server_default="")
+    status: Mapped[str] = mapped_column(String(10))
+    error: Mapped[str] = mapped_column(Text, server_default="")
+    tokens_in: Mapped[int] = mapped_column(server_default="0")
+    tokens_out: Mapped[int] = mapped_column(server_default="0")
+    latency_ms: Mapped[int] = mapped_column(server_default="0")
+    cost_inr: Mapped[float] = mapped_column(Numeric(12, 6), server_default="0")
+    fallback_used: Mapped[bool] = mapped_column(server_default="false")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), index=True
     )
