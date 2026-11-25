@@ -14,17 +14,39 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # Application settings
     app_name: str = "glucolit"
     app_env: Literal["local", "ci", "production"]
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+
+    # Data settings
     data_file: Path = Path("data/sample_records.json")
     database_url: str
 
-    # The commit this image was built from. CI sets it; locally "dev".
+    # Git information
     git_sha: str = "dev"
+
+    # LLM gateway (Day 8)
+    # Keys default to empty so tests and CI never need them.
+    gemini_api_key: str = ""
+    groq_api_key: str = ""
+
+    llm_primary_model: str = "gemini-3.8-flash"
+    llm_fallback_model: str = "openai/gpt-oss-20b"
+
+    # OpenAI-compatible API endpoints
+    llm_primary_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai"
+    llm_fallback_base_url: str = "https://api.groq.com/openai/v1"
+
+    llm_timeout_seconds: float = 30.0
+
+    # Cost estimation
+    usd_inr: float = 95.0
+
+    # Prompt directory
+    prompts_dir: Path = Path("prompts")
 
 
 @lru_cache
 def get_settings() -> Settings:
-    """Build the settings once and reuse them."""
     return Settings()
