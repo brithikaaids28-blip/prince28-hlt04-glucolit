@@ -394,3 +394,26 @@ Command:
 ### One thing learned
 
 I learned how to parse research articles, extract structured text, store pages in PostgreSQL and verify the complete corpus.
+### Parser comparison: JATS vs Trafilatura
+
+- Articles compared: 10 largest XML files.
+- Selection method: XML file size used as a proxy for parsing difficulty.
+- JATS average extraction: 16,199 words per article.
+- Trafilatura average extraction: 19,694 words per article.
+- JATS average processing time: 0.084 seconds.
+- Trafilatura average processing time: 0.645 seconds.
+- JATS detected headings in all 10 articles.
+- Trafilatura heading count: 0.
+
+### Comparison conclusion
+
+The JATS parser was approximately 7.7 times faster than Trafilatura
+and preserved structured headings and page divisions. Trafilatura
+extracted more words in 8 out of 10 articles, but higher word counts
+do not necessarily indicate better extraction quality.
+
+The JATS parser was retained as the primary parser because the corpus
+uses JATS XML and structured document extraction is required.
+
+The 10 largest files were used as a reproducible proxy for difficult
+articles; they were not independently verified as the 10 hardest.
