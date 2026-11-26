@@ -417,3 +417,86 @@ uses JATS XML and structured document extraction is required.
 
 The 10 largest files were used as a reproducible proxy for difficult
 articles; they were not independently verified as the 10 hardest.
+### Prompt comparison
+
+Test set: 20 questions across docs, personal, and off_topic.
+
+| Prompt version | Accuracy | Input tokens | Output tokens |
+|---|---:|---:|---:|
+| classify_v1 | 55.0% (11/20) | 2,299 | 2,281 |
+| classify_v2 | 100.0% (20/20) | 5,399 | 1,599 |
+| classify_v3 | 100.0% (20/20) | 7,539 | 1,314 |
+| classify_v4 | 100.0% (20/20) | 6,559 | 1,349 |
+
+**Best router prompt:** classify_v2.md. It achieved 100% accuracy with the lowest input-token count among the prompts scoring 100%.
+
+**V4 change:** Added an explicit distinction between general diabetes research questions (docs) and personalized medical advice based on an individual's history, test results, or current condition (personal).
+
+**Remaining misclassifications:** None for v2, v3, or v4. V1 had 9 misclassifications.
+
+**Changed label:** No changes required for v2, v3, or v4.
+
+**Input-token comparison:** v1 used 2,299 input tokens; the best prompt, v2, used 5,399 input tokens.
+
+**Leak check:** No LEAK lines were reported.
+
+**Cache:** v1–v3 reused 20 cached answers each; v4 generated 20 new answers.
+
+**Cost:** The script displayed 0.0000 INR for all versions. This value is unverified because the configured model may not match the gateway pricing table.
+
+## D09 · Versioned Prompts and Metadata Extraction
+
+### Metadata extraction implementation
+
+- Created DocMeta using Pydantic validation with extra fields forbidden.
+- Five common fields: `doc_kind`, `year`, `language`, `summary`, `topics`.
+- Five project-specific fields: `pmcid`, `journal`, `study_type`, `population`, `sample_size`.
+- Extra fields are forbidden.
+- Created versioned extraction prompts: `extract_v1.md` and `extract_v2.md`.
+- Active extraction prompt: `extract_v2`.
+- Implemented JSON parsing, validation error reporting and retry handling.
+- Extraction uses the first two article pages, with a maximum of 4,000 characters.
+- Extracted metadata is merged into existing document metadata, preserving parser information.
+
+### Extraction results
+
+| Metric | Result |
+|---|---:|
+| Parsed documents in Neon | 491 |
+| Successfully extracted | 103 |
+| Remaining without successful extraction | 388 |
+| Latest batch processed | 50 |
+| Latest batch successful | 48 |
+| Latest batch failed | 2 |
+| Previously completed records skipped | 55 |
+
+- Extraction coverage: approximately 21%.
+- The minimum 50-document extraction requirement was exceeded.
+- Metadata was stored in Neon PostgreSQL.
+- Prompt version recorded: `extract_v2`.
+
+### Provider issues
+
+- Gemini returned HTTP 403 because billing was not enabled for the project.
+- Groq successfully handled most requests.
+- Groq occasionally returned HTTP 429 due to rate limits.
+- The latest batch encountered the Groq daily token limit.
+- One document returned invalid JSON after two extraction attempts.
+- Two documents failed in the latest batch and can be retried when provider capacity is available.
+
+### Cost limitation
+
+- The script displayed ₹0.0 for extraction calls.
+- This is not confirmed as the actual API cost because the fallback model may not have a configured pricing entry.
+- Actual API cost needs separate verification.
+
+### Testing
+
+- Unit extraction tests passed.
+- Integration test verified that parser metadata is preserved and extracted metadata is stored.
+- Ruff lint checks passed.
+- Ruff formatting passed.
+
+### One thing learned
+
+I learned how to use versioned prompts, validate LLM-generated JSON using Pydantic, retry invalid responses, handle provider rate limits and store structured metadata in PostgreSQL.
