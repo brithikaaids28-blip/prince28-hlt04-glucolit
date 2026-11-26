@@ -569,9 +569,9 @@ def build_gateway(
         providers.append(
             OpenAICompatProvider(
                 "gemini",
-                settings.gemini_base_url,
+                settings.llm_primary_base_url,
                 settings.gemini_api_key,
-                settings.gemini_model,
+                settings.llm_primary_model,
                 timeout=settings.llm_timeout_seconds,
             )
         )
@@ -580,9 +580,9 @@ def build_gateway(
         providers.append(
             OpenAICompatProvider(
                 "groq",
-                settings.groq_base_url,
+                settings.llm_fallback_base_url,
                 settings.groq_api_key,
-                settings.groq_model,
+                settings.llm_fallback_model,
                 timeout=settings.llm_timeout_seconds,
             )
         )
