@@ -5,6 +5,7 @@ import logging
 from uuid import uuid4
 
 import httpx
+from arq import Retry
 from arq.connections import RedisSettings
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -38,6 +39,7 @@ log = logging.getLogger("glucolit.worker")
 
 MAX_ARTICLE_CHARS = 4000
 FIRST_PAGES = 2
+RETRY_DELAY_SECONDS = 30
 
 
 async def record_usage(row: dict) -> None:
@@ -218,6 +220,9 @@ async def process_ingest_item(ctx: dict, item_id: int) -> None:
 
         raise
 
+    except Retry:
+        raise
+
     except Exception as exc:
         log.exception("Ingestion item %s failed", item_id)
 
@@ -229,7 +234,7 @@ async def process_ingest_item(ctx: dict, item_id: int) -> None:
                 item.error = str(exc)[:1000]
                 await session.commit()
 
-        raise
+        raise Retry(defer=RETRY_DELAY_SECONDS) from exc
 
 
 async def process_ingest_job(ctx: dict, job_id: str) -> None:

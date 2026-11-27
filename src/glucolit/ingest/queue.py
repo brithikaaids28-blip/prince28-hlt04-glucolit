@@ -14,12 +14,16 @@ async def get_queue() -> ArqRedis:
 
 
 async def enqueue_ingest(job_id: str) -> str:
-    """Submit an ingestion job to the background worker."""
+    """Submit an ingestion job using a deterministic ARQ job ID."""
     redis = await get_queue()
+    queue_job_id = f"glucolit-ingest-{job_id}"
+
     try:
-        job = await redis.enqueue_job("process_ingest_job", job_id)
-        if job is None:
-            raise RuntimeError(f"Job {job_id} is already queued")
-        return job.job_id
+        await redis.enqueue_job(
+            "process_ingest_job",
+            job_id,
+            _job_id=queue_job_id,
+        )
+        return queue_job_id
     finally:
         await redis.aclose()

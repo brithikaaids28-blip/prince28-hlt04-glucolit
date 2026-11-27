@@ -63,6 +63,22 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+  worker:
+    build: .
+    command: ["arq", "glucolit.ingest.worker.WorkerSettings"]
+    environment:
+      <<: *app-env
+      REDIS_URL: redis://redis:6379
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
 
 volumes:
   pgdata:

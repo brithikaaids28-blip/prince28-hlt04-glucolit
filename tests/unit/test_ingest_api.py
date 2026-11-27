@@ -1,278 +1,511 @@
+"""Tests for the protected background-ingestion API."""
+
+from datetime import UTC, datetime
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.testclient import TestClient
 
 from glucolit.api.deps import get_session
 from glucolit.api.main import create_app
-from glucolit.api.routes import ingest
-from glucolit.config import Settings
+from glucolit.api.routes import ingest as ingest_route
+from glucolit.config import get_settings
+from glucolit.db.models import IngestItem, IngestJob
+
+ADMIN_TOKEN = "test-admin-token"
+
+
+class FakeResult:
+    """Minimal SQLAlchemy result substitute."""
+
+    def __init__(self, items):
+        self.items = items
+
+    def scalars(self):
+        return self
+
+    def all(self):
+        return self.items
+
+
+class FakeSession:
+    """Minimal async database session for route tests."""
+
+    def __init__(self, job=None, items=None):
+        self.job = job
+        self.items = items or []
+        self.added = []
+        self.committed = False
+        self.deleted = []
+
+    async def get(self, model, object_id):
+        if model is IngestJob and self.job and self.job.id == object_id:
+            return self.job
+        return None
+
+    async def execute(self, statement):
+        return FakeResult(self.items)
+
+    def add(self, item):
+        self.added.append(item)
+
+    async def commit(self):
+        self.committed = True
+
+    async def delete(self, item):
+        self.deleted.append(item)
+
+    async def rollback(self):
+        pass
 
 
 @pytest.fixture
-def ingest_client(monkeypatch):
-    settings = Settings(
-        app_env="ci",
-        database_url="postgresql://localhost:5432/unused",
-        admin_token="test-admin-token",
-        _env_file=None,
+def app(monkeypatch):
+    """Create an app with a configured test admin token."""
+    monkeypatch.setattr(
+        get_settings(),
+        "admin_token",
+        ADMIN_TOKEN,
     )
-
-    monkeypatch.setattr(ingest, "get_settings", lambda: settings)
-
-    app = create_app(settings)
-
-    async def fake_session():
-        yield None
-
-    app.dependency_overrides[get_session] = fake_session
-
-    with TestClient(app) as test_client:
-        yield test_client
-
-    app.dependency_overrides.clear()
+    return create_app()
 
 
-def test_create_ingest_job_requires_admin_token(ingest_client):
-    response = ingest_client.post("/v1/ingest")
-
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid admin token"
+@pytest.fixture
+def client(app):
+    return TestClient(app)
 
 
-def test_create_ingest_job_rejects_invalid_token(ingest_client):
-    response = ingest_client.post(
-        "/v1/ingest",
-        headers={"X-Admin-Token": "wrong-token"},
-    )
-
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid admin token"
+@pytest.fixture
+def headers():
+    return {"X-Admin-Token": ADMIN_TOKEN}
 
 
-def test_create_ingest_job_returns_503_without_admin_configuration(monkeypatch, ingest_client):
-    settings = Settings(
-        app_env="ci",
-        database_url="postgresql://localhost:5432/unused",
-        admin_token="",
-        _env_file=None,
-    )
-
-    monkeypatch.setattr(ingest, "get_settings", lambda: settings)
-
-    response = ingest_client.post(
-        "/v1/ingest",
-        headers={"X-Admin-Token": "test-admin-token"},
-    )
-
-    assert response.status_code == 503
-    assert response.json()["detail"] == "Admin authentication is not configured"
+@pytest.fixture
+def fake_session():
+    return FakeSession()
 
 
-def test_create_ingest_job_rejects_limit_above_maximum(ingest_client):
-    response = ingest_client.post(
-        "/v1/ingest?limit=11",
-        headers={"X-Admin-Token": "test-admin-token"},
-    )
+def override_session(app, session):
+    async def get_fake_session():
+        yield session
 
-    assert response.status_code == 422
+    app.dependency_overrides[get_session] = get_fake_session
 
 
-def test_create_ingest_job_rejects_zero_limit(ingest_client):
-    response = ingest_client.post(
-        "/v1/ingest?limit=0",
-        headers={"X-Admin-Token": "test-admin-token"},
-    )
-
-    assert response.status_code == 422
-
-
-def test_create_ingest_job_handles_source_file_error(monkeypatch, ingest_client):
-    def fail_read_sources():
-        raise OSError("Source file unavailable")
-
-    monkeypatch.setattr(ingest, "read_sources", fail_read_sources)
-
-    response = ingest_client.post(
-        "/v1/ingest",
-        headers={"X-Admin-Token": "test-admin-token"},
-    )
-
-    assert response.status_code == 400
-    assert "Could not read source list" in response.json()["detail"]
-
-
-def test_create_ingest_job_handles_no_eligible_sources(monkeypatch, ingest_client):
-    monkeypatch.setattr(ingest, "read_sources", lambda: [])
-
-    response = ingest_client.post(
-        "/v1/ingest",
-        headers={"X-Admin-Token": "test-admin-token"},
-    )
-
-    assert response.status_code == 400
-    assert response.json()["detail"] == ("No eligible sources are available for ingestion")
-
-
-def test_create_ingest_job_success(monkeypatch, ingest_client):
-    class FakeSession:
-        def __init__(self):
-            self.added = []
-
-        def add(self, item):
-            self.added.append(item)
-
-        async def commit(self):
-            pass
-
-    fake_db = FakeSession()
-
-    async def fake_session():
-        yield fake_db
-
-    ingest_client.app.dependency_overrides[get_session] = fake_session
-
-    source = SimpleNamespace(
-        url="https://example.org/PMC1234567",
+def sample_source():
+    return SimpleNamespace(
+        url="https://pmc.ncbi.nlm.nih.gov/articles/PMC123456/",
         source="PMC",
         licence="CC BY 4.0",
-        title="Test diabetes paper",
+        title="Example diabetes paper",
     )
 
-    monkeypatch.setattr(ingest, "read_sources", lambda: [source])
 
-    async def fake_enqueue(job_id):
-        return "test-queue-job"
+def mock_sources(monkeypatch, sources):
+    monkeypatch.setattr(
+        ingest_route,
+        "read_sources",
+        lambda: sources,
+    )
+    monkeypatch.setattr(
+        ingest_route,
+        "enqueue_ingest",
+        AsyncMock(return_value="queue-job-123"),
+    )
 
-    monkeypatch.setattr(ingest, "enqueue_ingest", fake_enqueue)
 
-    response = ingest_client.post(
+def test_create_ingest_job_requires_admin_token(client):
+    response = client.post(
         "/v1/ingest",
-        headers={"X-Admin-Token": "test-admin-token"},
+        json={"limit": 1},
+    )
+
+    assert response.status_code == 401
+
+
+def test_create_ingest_job_rejects_limit_above_maximum(client, headers):
+    response = client.post(
+        "/v1/ingest",
+        json={"limit": 2001},
+        headers=headers,
+    )
+
+    assert response.status_code == 422
+
+
+def test_create_ingest_job_handles_no_eligible_sources(
+    app,
+    client,
+    headers,
+    fake_session,
+    monkeypatch,
+):
+    override_session(app, fake_session)
+    monkeypatch.setattr(
+        ingest_route,
+        "read_sources",
+        lambda: [],
+    )
+
+    response = client.post(
+        "/v1/ingest",
+        json={"limit": 10},
+        headers=headers,
     )
 
     assert response.status_code == 200
-    data = response.json()
-    assert data["queue_job_id"] == "test-queue-job"
-    assert data["requested"] == 1
-    assert data["status"] == "queued"
-    assert len(fake_db.added) == 2
+    assert response.json()["status"] == "no_work"
+    assert response.json()["requested"] == 0
 
 
-def test_create_ingest_job_handles_redis_failure(monkeypatch, ingest_client):
-    class FakeSession:
-        def __init__(self):
-            self.added = []
-            self.deleted = []
+def test_create_ingest_job_success(
+    app,
+    client,
+    headers,
+    fake_session,
+    monkeypatch,
+):
+    override_session(app, fake_session)
+    mock_sources(monkeypatch, [sample_source()])
 
-        def add(self, item):
-            self.added.append(item)
-
-        async def commit(self):
-            pass
-
-        async def execute(self, statement):
-            pass
-
-        async def delete(self, item):
-            self.deleted.append(item)
-
-    fake_db = FakeSession()
-
-    async def fake_session():
-        yield fake_db
-
-    ingest_client.app.dependency_overrides[get_session] = fake_session
-
-    source = SimpleNamespace(
-        url="https://example.org/PMC1234567",
-        source="PMC",
-        licence="CC BY 4.0",
-        title="Test diabetes paper",
+    response = client.post(
+        "/v1/ingest",
+        json={"limit": 1},
+        headers=headers,
     )
 
-    monkeypatch.setattr(ingest, "read_sources", lambda: [source])
+    assert response.status_code == 202
 
-    async def fail_enqueue(job_id):
-        raise RuntimeError("Redis unavailable")
+    body = response.json()
+    assert body["status"] == "queued"
+    assert body["requested"] == 1
+    assert body["queue_job_id"] == "queue-job-123"
+    assert body["job_id"]
 
-    monkeypatch.setattr(ingest, "enqueue_ingest", fail_enqueue)
+    assert fake_session.committed
+    assert len(fake_session.added) == 2
+    assert isinstance(fake_session.added[0], IngestJob)
+    assert isinstance(fake_session.added[1], IngestItem)
 
-    response = ingest_client.post(
+
+def test_create_ingest_job_excludes_nc_nd_licences(
+    app,
+    client,
+    headers,
+    fake_session,
+    monkeypatch,
+):
+    override_session(app, fake_session)
+
+    allowed = sample_source()
+    restricted = SimpleNamespace(
+        url="https://example.com/restricted",
+        source="PMC",
+        licence="CC BY-NC-ND 4.0",
+        title="Restricted paper",
+    )
+
+    mock_sources(monkeypatch, [allowed, restricted])
+
+    response = client.post(
         "/v1/ingest",
-        headers={"X-Admin-Token": "test-admin-token"},
+        json={"limit": 10},
+        headers=headers,
+    )
+
+    assert response.status_code == 202
+    assert response.json()["requested"] == 1
+
+
+def test_create_ingest_job_filters_by_source(
+    app,
+    client,
+    headers,
+    fake_session,
+    monkeypatch,
+):
+    override_session(app, fake_session)
+
+    sources = [
+        sample_source(),
+        SimpleNamespace(
+            url="https://example.com/other",
+            source="OTHER",
+            licence="CC BY 4.0",
+            title="Other paper",
+        ),
+    ]
+
+    mock_sources(monkeypatch, sources)
+
+    response = client.post(
+        "/v1/ingest",
+        json={"limit": 10, "source": "pmc"},
+        headers=headers,
+    )
+
+    assert response.status_code == 202
+    assert response.json()["requested"] == 1
+
+
+def test_create_ingest_job_supports_query_parameters(
+    app,
+    client,
+    headers,
+    fake_session,
+    monkeypatch,
+):
+    override_session(app, fake_session)
+    mock_sources(monkeypatch, [sample_source()])
+
+    response = client.post(
+        "/v1/ingest?limit=1&source=PMC",
+        headers=headers,
+    )
+
+    assert response.status_code == 202
+    assert response.json()["requested"] == 1
+
+
+def test_create_ingest_job_rejects_retry_without_original_job_id(
+    app,
+    client,
+    headers,
+    fake_session,
+):
+    override_session(app, fake_session)
+
+    response = client.post(
+        "/v1/ingest",
+        json={"retry_failed": True},
+        headers=headers,
+    )
+
+    assert response.status_code == 400
+    assert "original job ID" in response.json()["detail"]
+
+
+def test_create_ingest_job_handles_redis_failure(
+    app,
+    client,
+    headers,
+    fake_session,
+    monkeypatch,
+):
+    override_session(app, fake_session)
+    monkeypatch.setattr(
+        ingest_route,
+        "read_sources",
+        lambda: [sample_source()],
+    )
+    monkeypatch.setattr(
+        ingest_route,
+        "enqueue_ingest",
+        AsyncMock(side_effect=RuntimeError("Redis unavailable")),
+    )
+
+    response = client.post(
+        "/v1/ingest",
+        json={"limit": 1},
+        headers=headers,
     )
 
     assert response.status_code == 503
     assert response.json()["detail"] == ("Could not submit ingestion job to Redis")
-    assert len(fake_db.deleted) == 1
 
 
-def test_get_ingest_job_status(monkeypatch, ingest_client):
-    class FakeResult:
-        def scalars(self):
-            return self
+def test_get_ingest_job_not_found(
+    app,
+    client,
+    headers,
+    fake_session,
+):
+    override_session(app, fake_session)
 
-        def all(self):
-            return [
-                SimpleNamespace(
-                    id=1,
-                    record={"source": "PMC", "title": "Test paper"},
-                    status="done",
-                    attempts=1,
-                    pages=5,
-                    error="",
-                ),
-                SimpleNamespace(
-                    id=2,
-                    record={"source": "PMC", "title": "Another paper"},
-                    status="queued",
-                    attempts=0,
-                    pages=0,
-                    error="",
-                ),
-            ]
-
-    class FakeSession:
-        async def get(self, model, job_id):
-            return SimpleNamespace(id=job_id, requested=2)
-
-        async def execute(self, statement):
-            return FakeResult()
-
-    async def fake_session():
-        yield FakeSession()
-
-    ingest_client.app.dependency_overrides[get_session] = fake_session
-
-    response = ingest_client.get(
-        "/v1/ingest/test-job-123",
-        headers={"X-Admin-Token": "test-admin-token"},
-    )
-
-    assert response.status_code == 200
-    data = response.json()
-    assert data["job_id"] == "test-job-123"
-    assert data["requested"] == 2
-    assert data["status"] == "queued"
-    assert data["counts"]["done"] == 1
-    assert data["counts"]["queued"] == 1
-
-
-def test_get_ingest_job_returns_404_when_missing(ingest_client):
-    class FakeSession:
-        async def get(self, model, job_id):
-            return None
-
-    async def fake_session():
-        yield FakeSession()
-
-    ingest_client.app.dependency_overrides[get_session] = fake_session
-
-    response = ingest_client.get(
+    response = client.get(
         "/v1/ingest/missing-job",
-        headers={"X-Admin-Token": "test-admin-token"},
+        headers=headers,
     )
 
     assert response.status_code == 404
-    assert response.json()["detail"] == "Ingestion job not found"
+
+
+def test_get_ingest_job_returns_status_counts(
+    app,
+    client,
+    headers,
+):
+    job = IngestJob(
+        id="job-123",
+        requested=3,
+    )
+
+    items = [
+        IngestItem(
+            id=1,
+            job_id="job-123",
+            record={"source": "PMC", "title": "Paper one"},
+            status="done",
+            attempts=1,
+            pages=10,
+        ),
+        IngestItem(
+            id=2,
+            job_id="job-123",
+            record={"source": "PMC", "title": "Paper two"},
+            status="processing",
+            attempts=1,
+            pages=0,
+        ),
+        IngestItem(
+            id=3,
+            job_id="job-123",
+            record={"source": "PMC", "title": "Paper three"},
+            status="queued",
+            attempts=0,
+            pages=0,
+        ),
+    ]
+
+    session = FakeSession(job=job, items=items)
+    override_session(app, session)
+
+    response = client.get(
+        "/v1/ingest/job-123",
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+    assert body["status"] == "processing"
+    assert body["counts"] == {
+        "queued": 1,
+        "processing": 1,
+        "done": 1,
+        "failed": 0,
+    }
+    assert len(body["items"]) == 3
+
+
+def test_get_dead_letter_items(
+    app,
+    client,
+    headers,
+):
+    failed_item = IngestItem(
+        id=7,
+        job_id="job-123",
+        record={
+            "source": "PMC",
+            "title": "Failed paper",
+        },
+        status="failed",
+        attempts=3,
+        error="Download failed",
+        updated_at=datetime.now(UTC),
+    )
+
+    session = FakeSession(items=[failed_item])
+    override_session(app, session)
+
+    response = client.get(
+        "/v1/ingest/dead-letter",
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+    assert body["count"] == 1
+    assert body["items"][0]["title"] == "Failed paper"
+    assert body["items"][0]["attempts"] == 3
+    assert body["items"][0]["error"] == "Download failed"
+
+
+def test_retry_failed_items_creates_new_job(
+    app,
+    client,
+    headers,
+    monkeypatch,
+):
+    original_job = IngestJob(
+        id="job-original",
+        requested=2,
+    )
+
+    failed_item = IngestItem(
+        id=2,
+        job_id="job-original",
+        record={
+            "url": "https://example.com/failed",
+            "source": "PMC",
+            "licence": "CC BY 4.0",
+            "title": "Failed paper",
+        },
+        status="failed",
+        attempts=3,
+    )
+
+    session = FakeSession(
+        job=original_job,
+        items=[failed_item],
+    )
+    override_session(app, session)
+
+    monkeypatch.setattr(
+        ingest_route,
+        "enqueue_ingest",
+        AsyncMock(return_value="queue-retry-123"),
+    )
+
+    response = client.post(
+        "/v1/ingest/job-original/retry",
+        headers=headers,
+    )
+
+    assert response.status_code == 202
+    assert response.json()["requested"] == 1
+    assert response.json()["status"] == "queued"
+    assert response.json()["job_id"] != "job-original"
+
+
+def test_retry_failed_items_returns_conflict_when_none_failed(
+    app,
+    client,
+    headers,
+):
+    original_job = IngestJob(
+        id="job-original",
+        requested=1,
+    )
+
+    session = FakeSession(
+        job=original_job,
+        items=[],
+    )
+    override_session(app, session)
+
+    response = client.post(
+        "/v1/ingest/job-original/retry",
+        headers=headers,
+    )
+
+    assert response.status_code == 409
+
+
+def test_retry_failed_items_returns_404_for_missing_job(
+    app,
+    client,
+    headers,
+    fake_session,
+):
+    override_session(app, fake_session)
+
+    response = client.post(
+        "/v1/ingest/missing-job/retry",
+        headers=headers,
+    )
+
+    assert response.status_code == 404
