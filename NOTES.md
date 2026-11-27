@@ -540,3 +540,65 @@ I learned how to build an LLM gateway with provider fallback, expose chat and us
 ### One thing learned
 
 I learned how to use versioned prompts, validate LLM-generated JSON using Pydantic, retry invalid responses, handle provider rate limits and store structured metadata in PostgreSQL.
+
+
+## Day 10 — Background Ingestion Queue
+
+### Implementation
+- Added ARQ and Redis for background ingestion jobs.
+- Added `IngestJob` and `IngestItem` database models.
+- Created Alembic migration `77f4ec15cf13`.
+- Added Redis queue helpers in `src/glucolit/ingest/queue.py`.
+- Implemented the background worker in `src/glucolit/ingest/worker.py`.
+- Added admin-token-protected ingestion API endpoints:
+  - `POST /v1/ingest`
+  - `GET /v1/ingest/{job_id}`
+- Added unit tests for ingestion API, queue, storage and worker behavior.
+
+### Real ingestion test
+- Job ID: `917e883254ec40b6ab3fc14572131aa0`
+- Documents requested: 10
+- Documents completed: 10
+- Documents failed: 0
+- Total extracted pages: 136
+- Final job status: `completed`
+- Existing database records were preserved.
+
+### Worker recovery test
+- Unit test for reprocessing interrupted items: Passed.
+- Live worker crash/restart recovery test: Not performed.
+- Recovery logic was verified through the unit test.
+
+### Docker Compose verification
+- Docker Compose configuration validation: Passed.
+- Worker image build: Passed.
+- Database migration: Exited with code 0.
+- PostgreSQL: Healthy.
+- Redis: Healthy.
+- Worker container: Up.
+- Worker logs confirmed `process_ingest_job` registration and successful startup.
+- Worker startup command uses `arq glucolit.ingest.worker.WorkerSettings`.
+
+### Testing and quality
+- Full test suite: 141 passed.
+- Ruff lint: Passed.
+- Ruff formatting: Passed.
+- Ingestion API tests: 15 passed.
+- Queue and storage tests: 5 passed.
+- Worker tests: 11 passed.
+
+### Provider issues
+- Gemini returned HTTP 403 because billing was not enabled.
+- Groq handled fallback requests.
+- Groq occasionally returned HTTP 429 due to rate limits.
+- Retried ingestion items completed successfully.
+
+### Notes
+- FastAPI and the ARQ worker run as separate processes.
+- Redis and PostgreSQL run through Docker Compose.
+- The real 10-document ingestion job completed successfully.
+- Docker Compose worker startup was verified independently.
+- Live crash/restart recovery remains unverified.
+
+### One thing learned
+I learned how to process article ingestion asynchronously using ARQ and Redis, track job status in PostgreSQL, retry interrupted work, and run the worker as a Docker Compose service.

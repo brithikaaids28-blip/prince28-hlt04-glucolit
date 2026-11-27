@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-from sqlalchemy import delete
+from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -35,9 +35,22 @@ async def store_parsed(
     licence: str | None = None,
     sha256: str | None = None,
 ) -> None:
-    """Save a parsed document and replace its existing pages."""
+    """Save a parsed document while preserving existing extraction metadata."""
     path = Path(path)
     digest = sha256 or file_sha256(path)
+
+    # Read the previous hash before updating the document.
+    previous_result = await session.execute(
+        select(Document.sha256).where(Document.external_id == external_id)
+    )
+    previous_digest = previous_result.scalar_one_or_none()
+
+    parser_metadata = {
+        "parser": parsed.parser,
+        "pages": len(parsed.pages),
+        "tables": sum(page.tables for page in parsed.pages),
+        "path": str(path),
+    }
 
     values = {
         "external_id": external_id,
@@ -46,15 +59,11 @@ async def store_parsed(
         "licence": licence,
         "doc_type": parsed.kind,
         "sha256": digest,
-        "metadata_": {
-            "parser": parsed.parser,
-            "pages": len(parsed.pages),
-            "tables": sum(page.tables for page in parsed.pages),
-            "path": str(path),
-        },
+        "metadata_": parser_metadata,
     }
 
     statement = insert(Document).values(**values)
+
     statement = statement.on_conflict_do_update(
         index_elements=[Document.external_id],
         set_={
@@ -63,29 +72,30 @@ async def store_parsed(
             "licence": statement.excluded.licence,
             "doc_type": statement.excluded.doc_type,
             "sha256": statement.excluded.sha256,
-            "metadata": statement.excluded.metadata,
+            # Merge parser fields without erasing extraction metadata.
+            "metadata": Document.metadata_.op("||")(statement.excluded.metadata),
             "updated_at": statement.excluded.updated_at,
         },
     )
 
     await session.execute(statement)
 
-    result = await session.execute(
-        __import__("sqlalchemy").select(Document.id).where(Document.external_id == external_id)
-    )
+    result = await session.execute(select(Document.id).where(Document.external_id == external_id))
     document_id = result.scalar_one()
 
-    await session.execute(delete(Page).where(Page.document_id == document_id))
+    # Only replace pages when this is a new document or its file changed.
+    if previous_digest != digest:
+        await session.execute(delete(Page).where(Page.document_id == document_id))
 
-    for page in parsed.pages:
-        session.add(
-            Page(
-                document_id=document_id,
-                page_no=page.page_no,
-                text=page.text,
-                headings=page.headings,
+        for page in parsed.pages:
+            session.add(
+                Page(
+                    document_id=document_id,
+                    page_no=page.page_no,
+                    text=page.text,
+                    headings=page.headings,
+                )
             )
-        )
 
     await session.execute(delete(ParseFailure).where(ParseFailure.path == str(path)))
 
