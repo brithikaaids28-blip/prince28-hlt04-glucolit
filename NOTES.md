@@ -444,6 +444,46 @@ Test set: 20 questions across docs, personal, and off_topic.
 
 **Cost:** The script displayed 0.0000 INR for all versions. This value is unverified because the configured model may not match the gateway pricing table.
 
+## D08 · LLM Gateway and API Deployment
+
+### LLM Gateway
+
+- Implemented a centralized LLM gateway for GlucoLit.
+- Configured Gemini as the primary provider and Groq as the fallback provider.
+- Added retry handling, backoff and circuit-breaker behavior.
+- Implemented streaming and non-streaming chat responses.
+- Added fallback handling when the primary provider is unavailable.
+- Added LLM usage recording, including provider, model, token counts and estimated cost.
+
+### API endpoints
+
+- `/health` – API health check.
+- `/ready` – Database readiness check.
+- `/v1/chat` – Chat endpoint with optional streaming.
+- `/v1/usage` – Daily LLM usage and estimated cost.
+- `/v1/documents` – Document search and metadata filtering.
+
+### Deployment and verification
+
+- Deployed the FastAPI application on Render.
+- Connected the application to Neon PostgreSQL.
+- Verified database readiness.
+- Verified the live API on 27 November 2026.
+
+| Endpoint | Live result |
+|---|---|
+| `/v1/chat` | HTTP 200 OK |
+| `/v1/usage` | HTTP 200 OK |
+| `/v1/documents?doc_kind=guideline&limit=3` | HTTP 200 OK |
+
+- Chat response successfully generated using Groq fallback.
+- Live usage statistics were returned successfully.
+- Document endpoint returned a guideline with extracted metadata.
+
+### One thing learned
+
+I learned how to build an LLM gateway with provider fallback, expose chat and usage APIs using FastAPI, record LLM usage and deploy the application on Render.
+
 ## D09 · Versioned Prompts and Metadata Extraction
 
 ### Metadata extraction implementation
