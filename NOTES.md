@@ -540,3 +540,32 @@ I learned how to build an LLM gateway with provider fallback, expose chat and us
 ### One thing learned
 
 I learned how to use versioned prompts, validate LLM-generated JSON using Pydantic, retry invalid responses, handle provider rate limits and store structured metadata in PostgreSQL.
+## Day 10 — Background Ingestion Queue
+
+### Completed
+- Added ARQ and Redis for background ingestion jobs.
+- Added `IngestJob` and `IngestItem` database models.
+- Created and applied Alembic migration `77f4ec15cf13`.
+- Added Redis queue helpers in `src/glucolit/ingest/queue.py`.
+- Implemented the background worker in `src/glucolit/ingest/worker.py`.
+- Added admin-token-protected ingestion API endpoints:
+  - `POST /v1/ingest`
+  - `GET /v1/ingest/{job_id}`
+- Registered the ingestion router in the FastAPI application.
+- Added unit tests for ingestion API and worker behavior.
+
+### Verification
+- Redis connection: Passed (`PONG`).
+- Database connection: Passed.
+- API health and readiness checks: Passed.
+- ARQ worker startup: Passed.
+- Queue submission and worker execution: Passed.
+- Admin-token configuration: Verified.
+- Ingestion status endpoint authentication and not-found handling: Passed.
+- Full test suite: 128 passed.
+- Ruff lint and formatting checks: Passed (90 files formatted).
+
+### Notes
+- Redis runs locally through Docker Compose.
+- FastAPI and ARQ worker run as separate processes.
+- A dummy queue job was used for integration testing; no real article ingestion was triggered during that test.

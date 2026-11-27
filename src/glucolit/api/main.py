@@ -12,7 +12,7 @@ from glucolit.api.errors import (
     validation_exception_handler,
 )
 from glucolit.api.middleware import RequestMiddleware
-from glucolit.api.routes import chat, documents, health
+from glucolit.api.routes import chat, documents, health, ingest
 from glucolit.config import Settings, get_settings
 from glucolit.db.llm_calls import LLMCallRepository
 from glucolit.db.session import AsyncSessionLocal, engine
@@ -66,5 +66,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(health.router)
     app.include_router(documents.router)
     app.include_router(chat.router)
-
+    app.include_router(ingest.router)
     return app
